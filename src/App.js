@@ -10,30 +10,10 @@ import remark from "remark";
 import markdown from "remark-parse";
 import html from "remark-html";
 
-/*
-# Title
-
-Text [Link](123.md).
-
-`code`
-
-```js
-const x => {
-  return x * x;
-}
-```
-*/
-
-/*
-Title
-=====
-
-Text!
-*/
-
 const textState = atom({
   key: "text",
-  default: "",
+  default:
+    "# Title\n\nText [Link](123.md).\n\n`code`\n\n```js\nconst x => {\n  return x * x;\n}\n",
 });
 
 const getAst = (text) => remark().use(markdown).parse(text);
