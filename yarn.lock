@@ -8887,10 +8887,9 @@ realpath-native@^1.1.0:
   dependencies:
     util.promisify "^1.0.0"
 
-recoil@^0.0.7:
+"recoil@https://github.com/facebookexperimental/Recoil#52c3adf447e4f32c16e7e086a553f20d9ea743d7":
   version "0.0.7"
-  resolved "https://registry.yarnpkg.com/recoil/-/recoil-0.0.7.tgz#197066ac0a983e4728f5973033bbe5b40a277d40"
-  integrity sha512-U/0kniHLk131hKhAX35QGdghVf3+PSkLcFIFoNBNy+yv62qCLm3TE5c3v4x4WYzuKgw1fxU3GGhKHAUYdyRnTQ==
+  resolved "https://github.com/facebookexperimental/Recoil#52c3adf447e4f32c16e7e086a553f20d9ea743d7"
 
 recursive-readdir@2.2.2:
   version "2.2.2"

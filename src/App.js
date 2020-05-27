@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   RecoilRoot,
   atom,
@@ -57,12 +57,31 @@ const useFormatCode = () => {
   };
 };
 
-const Form = () => {
+const Editor = () => {
   const [editor, setEditor] = useRecoilState(editorState);
   const formatCode = useFormatCode();
 
+  const onKeyPress = useCallback(
+    (event) => {
+      const isS = event.key === "s";
+      const isCmd = event.ctrlKey || event.metaKey;
+      const notAltOrShift = !event.altKey && !event.shiftKey;
+      if (isS && isCmd && notAltOrShift) {
+        formatCode();
+        event.preventDefault();
+        return false;
+      }
+    },
+    [formatCode]
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", onKeyPress);
+    return () => window.removeEventListener("keydown", onKeyPress);
+  });
+
   return (
-    <div style={{ flex: 1 }}>
+    <div style={{ flex: 1, marginBottom: 60 }}>
       <button onClick={formatCode}>
         Format
         <span style={{ opacity: 0.5, marginLeft: 5 }}>⌘+S</span>
@@ -86,7 +105,7 @@ const Preview = () => {
         flex: 1,
         flexDirection: "column",
         padding: 20,
-        marginTop: 40 + 20,
+        marginTop: 60,
       }}
       dangerouslySetInnerHTML={{ __html: preview }}
     />
@@ -104,7 +123,7 @@ const App = () => {
           margin: 20,
         }}
       >
-        <Form />
+        <Editor />
         <Preview />
       </div>
     </RecoilRoot>
