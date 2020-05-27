@@ -9,7 +9,6 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
-    "recoil": "https://github.com/facebookexperimental/Recoil#52c3adf447e4f32c16e7e086a553f20d9ea743d7",
     "remark": "^12.0.0",
     "remark-html": "^11.0.2",
     "remark-parse": "^8.0.2"

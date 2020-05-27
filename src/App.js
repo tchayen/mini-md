@@ -5,7 +5,7 @@ import {
   selector,
   useRecoilState,
   useRecoilValue,
-} from "recoil";
+} from "./recoil.development";
 import remark from "remark";
 import markdown from "remark-parse";
 import html from "remark-html";
