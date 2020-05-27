@@ -10,6 +10,39 @@ import remark from "remark";
 import markdown from "remark-parse";
 import html from "remark-html";
 
+const getOs = () => {
+  const userAgent = window.navigator.userAgent;
+  const platform = window.navigator.platform;
+  const macosPlatforms = ["Macintosh", "MacIntel", "MacPPC", "Mac68K"];
+  const windowsPlatforms = ["Win32", "Win64", "Windows", "WinCE"];
+  const iosPlatforms = ["iPhone", "iPad", "iPod"];
+  let os = null;
+
+  if (macosPlatforms.indexOf(platform) !== -1) {
+    os = "MacOS";
+  } else if (iosPlatforms.indexOf(platform) !== -1) {
+    os = "iOS";
+  } else if (windowsPlatforms.indexOf(platform) !== -1) {
+    os = "Windows";
+  } else if (/Android/.test(userAgent)) {
+    os = "Android";
+  } else if (!os && /Linux/.test(platform)) {
+    os = "Linux";
+  }
+
+  return os;
+};
+
+const getKeyboardTip = (os) => {
+  if (os === "MacOS") {
+    return "⌘+S";
+  } else if (os === "Windows" || os === "Linux") {
+    return "CTRL+S";
+  } else {
+    return "";
+  }
+};
+
 const textState = atom({
   key: "text",
   default:
@@ -84,7 +117,9 @@ const Editor = () => {
     <div style={{ flex: 1, marginBottom: 60 }}>
       <button onClick={formatCode}>
         Format
-        <span style={{ opacity: 0.5, marginLeft: 5 }}>⌘+S</span>
+        <span style={{ opacity: 0.5, marginLeft: 5 }}>
+          {getKeyboardTip(getOs())}
+        </span>
       </button>
       <textarea
         value={editor}
