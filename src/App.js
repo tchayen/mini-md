@@ -10,6 +10,7 @@ import remark from "remark";
 import markdown from "remark-parse";
 import html from "remark-html";
 
+// https://stackoverflow.com/a/38241481/9075960
 const getOs = () => {
   const userAgent = window.navigator.userAgent;
   const platform = window.navigator.platform;
