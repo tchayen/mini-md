@@ -5,7 +5,7 @@ import {
   selector,
   useRecoilState,
   useRecoilValue,
-} from "./recoil.development";
+} from "./recoil";
 import remark from "remark";
 import markdown from "remark-parse";
 import html from "remark-html";
@@ -13,7 +13,7 @@ import html from "remark-html";
 const textState = atom({
   key: "text",
   default:
-    "# Title\n\nText [Link](123.md).\n\n`code`\n\n```js\nconst x => {\n  return x * x;\n}\n",
+    "# Title\n\nText [Link](123.md).\n\n`code`\n\n```js\nconst x => {\n  return x * x;\n}\n```\n",
 });
 
 const getAst = (text) => remark().use(markdown).parse(text);
