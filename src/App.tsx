@@ -4,6 +4,8 @@ import React, {
   useRef,
   useState,
   ChangeEvent,
+  Ref,
+  RefObject,
 } from "react";
 import * as Recoil from "recoil";
 import remark from "remark";
@@ -94,16 +96,15 @@ const useFormatCode = () => {
   };
 };
 
-const Editor = () => {
-  const [editor, setEditor] = useRecoilState(editorState);
-  const formatCode = useFormatCode();
+type Selection = {
+  start: number;
+  end: number;
+} | null;
 
-  const ref = useRef<HTMLTextAreaElement>(null);
-  const [selection, setSelection] = useState<{
-    start: number;
-    end: number;
-  } | null>(null);
-
+const useShortcuts = (
+  ref: RefObject<HTMLTextAreaElement>,
+  map: { [key: string]: (event: KeyboardEvent) => void }
+) => {
   const handleShortcuts = useCallback(
     (event: KeyboardEvent) => {
       const isCmd = event.ctrlKey || event.metaKey;
@@ -117,47 +118,23 @@ const Editor = () => {
         return;
       }
 
-      if (!selection) {
-        return null;
-      }
-
-      const restoreCaretPosition = (offset: number = 0) => {
-        setImmediate(() => {
-          if (ref.current === null) {
-            return;
-          }
-
-          ref.current.selectionStart = ref.current.selectionEnd =
-            selection.end + offset;
-        });
-      };
-
       const key = event.key.toLowerCase();
 
-      const before = editor.substring(0, selection.start);
-      const active = editor.substring(selection.start, selection.end);
-      const after = editor.substring(selection.end);
-
-      if (key === "s") {
-        formatCode();
-        restoreCaretPosition();
-        event.preventDefault();
-      } else if (key === "b") {
-        const nextValue = `${before}**${active}**${after}`;
-        setEditor(nextValue);
-        restoreCaretPosition(`****`.length);
-      } else if (key === "i") {
-        const nextValue = `${before}_${active}_${after}`;
-        setEditor(nextValue);
-        restoreCaretPosition(`__`.length);
-      } else if (key === "z") {
-        // Turning off default behaviour since CMD+Z won't work with the
-        // insertions above.
-        event.preventDefault();
+      if (map[key]) {
+        map[key](event);
       }
     },
-    [editor, selection, setEditor, formatCode]
+    [map, ref]
   );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleShortcuts);
+    return () => window.removeEventListener("keydown", handleShortcuts);
+  }, [handleShortcuts]);
+};
+
+const useSelect = (ref: RefObject<HTMLTextAreaElement>, selected: string) => {
+  const [selection, setSelection] = useState<Selection>(null);
 
   const handleSelect = () => {
     if (!ref.current) {
@@ -168,14 +145,81 @@ const Editor = () => {
     setSelection({ start: selectionStart, end: selectionEnd });
   };
 
+  const getSelectionContext = () => {
+    if (selection === null) {
+      return null;
+    }
+
+    const before = selected.substring(0, selection.start);
+    const active = selected.substring(selection.start, selection.end);
+    const after = selected.substring(selection.end);
+
+    return { before, active, after };
+  };
+
+  const restoreCaretPosition = (offset: number = 0) => {
+    setImmediate(() => {
+      if (ref.current === null || selection === null) {
+        return;
+      }
+
+      ref.current.selectionStart = ref.current.selectionEnd =
+        selection.end + offset;
+    });
+  };
+
+  return { handleSelect, getSelectionContext, restoreCaretPosition };
+};
+
+const Editor = () => {
+  const [editor, setEditor] = useRecoilState(editorState);
+  const formatCode = useFormatCode();
+
+  const ref = useRef<HTMLTextAreaElement>(null);
+
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setEditor(event.target.value);
   };
 
-  useEffect(() => {
-    window.addEventListener("keydown", handleShortcuts);
-    return () => window.removeEventListener("keydown", handleShortcuts);
-  }, [handleShortcuts]);
+  const { handleSelect, getSelectionContext, restoreCaretPosition } = useSelect(
+    ref,
+    editor
+  );
+
+  useShortcuts(ref, {
+    b: () => {
+      const selectionContext = getSelectionContext();
+
+      if (selectionContext === null) {
+        return;
+      }
+
+      const { before, active, after } = selectionContext;
+      const nextValue = `${before}**${active}**${after}`;
+      setEditor(nextValue);
+      restoreCaretPosition(`****`.length);
+    },
+    i: () => {
+      const selectionContext = getSelectionContext();
+
+      if (selectionContext === null) {
+        return;
+      }
+
+      const { before, active, after } = selectionContext;
+      const nextValue = `${before}_${active}_${after}`;
+      setEditor(nextValue);
+      restoreCaretPosition(`__`.length);
+    },
+    s: (event) => {
+      formatCode();
+      restoreCaretPosition();
+      event.preventDefault();
+    },
+    z: (event) => {
+      event.preventDefault();
+    },
+  });
 
   return (
     <div style={{ flex: 1, marginBottom: 60 }}>
