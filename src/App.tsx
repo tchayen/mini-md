@@ -98,11 +98,6 @@ const Editor = () => {
   const [editor, setEditor] = useRecoilState(editorState);
   const formatCode = useFormatCode();
 
-  useEffect(() => {
-    console.log("mount");
-    return () => console.log("unmount");
-  }, []);
-
   const ref = useRef<HTMLTextAreaElement>(null);
   const [selection, setSelection] = useState<{
     start: number;
@@ -150,7 +145,6 @@ const Editor = () => {
       } else if (key === "b") {
         const nextValue = `${before}**${active}**${after}`;
         setEditor(nextValue);
-        console.log(ref.current.selectionStart, selection.end);
         restoreCaretPosition(`****`.length);
       } else if (key === "i") {
         const nextValue = `${before}_${active}_${after}`;
