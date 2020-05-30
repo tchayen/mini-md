@@ -260,16 +260,22 @@ const Preview = () => {
 const App = () => {
   return (
     <RecoilRoot>
-      <div
-        style={{
-          justifyContent: "center",
-          display: "flex",
-          flex: 1,
-          margin: 20,
-        }}
-      >
-        <Editor />
-        <Preview />
+      <div style={{ margin: 20 }}>
+        <div
+          style={{
+            justifyContent: "center",
+            display: "flex",
+            flex: 1,
+            marginBottom: 20,
+          }}
+        >
+          <Editor />
+          <Preview />
+        </div>
+        <span style={{ color: "#888", fontSize: 13 }}>
+          Something broken? Let me know{" "}
+          <a href="https://twitter.com/tchayen">@tchayen</a>.
+        </span>
       </div>
     </RecoilRoot>
   );
