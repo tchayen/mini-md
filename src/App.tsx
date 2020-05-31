@@ -4,13 +4,16 @@ import React, {
   useRef,
   useState,
   ChangeEvent,
-  Ref,
   RefObject,
 } from "react";
 import * as Recoil from "recoil";
+import unified from "unified";
 import remark from "remark";
 import markdown from "remark-parse";
-import html from "remark-html";
+import rehype from "rehype";
+import html from "rehype-stringify";
+import toHast from "mdast-util-to-hast";
+import all from "mdast-util-to-hast/lib/all";
 import { Node } from "unist";
 
 const { RecoilRoot, atom, selector, useRecoilState, useRecoilValue } = Recoil;
@@ -52,14 +55,26 @@ const getKeyboardTip = (os: string) => {
 const textState = atom({
   key: "text",
   default:
-    "# Title\n\nText [Link](123.md).\n\n`code`\n\n```js\nconst square = (x) => {\n  return x * x;\n}\n```\n",
+    "# Title\n\nText **bold** [Link](123.md).\n\n`code`\n\n```js\nconst square = (x) => {\n  return x * x;\n}\n```\n",
 });
 
-const getAst = (text: string) => remark().use(markdown).parse(text);
+const getAst = (text: string) => unified().use(markdown).parse(text);
 
 const getPretty = (ast: Node) => remark().use(markdown).stringify(ast);
 
-const getHtml = (ast: Node) => remark().use(html).stringify(ast);
+const getHtml = (ast: Node) => {
+  const html = toHast(ast, {
+    handlers: {
+      strong: (h, node) => {
+        return h(node, "strong", all(h, node));
+      },
+    },
+  });
+
+  return rehype().use(html).stringify(html);
+  // const transformed = remark().use(plugin).runSync(ast);
+  // return remark().use(html).stringify(transformed);
+};
 
 const cleanHtml = (text: string) =>
   text
